@@ -1,0 +1,58 @@
+volumes:
+    postgres:
+
+networks:
+    simplemessager_network:
+        driver: bridge
+
+services:
+    simplemessager_db: 
+        container_name: simplemessager_db
+        image: 'postgres:latest'
+        environment:
+            POSTGRES_USER: pgadmin
+            POSTGRES_PASSWORD: pgadmin
+            PGDATA: /data/postgres
+            POSTGRES_DB: SimpleMessagerDb
+        volumes:
+            - postgres:/data/postgres
+            - ./InitDB.sql:/docker-entrypoint-initdb.d/InitDB.sql
+        ports:
+            - "5432:5432"
+        networks:
+            - simplemessager_network
+
+    simplemessager_api:
+        container_name: simplemessager_api
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Production
+            - ASPNETCORE_URLS=http://+:3000
+        ports:
+            - "3001:3000"
+        volumes:
+            - ./SimpleMessager/log.txt:/app/log.txt
+        networks:
+            - simplemessager_network
+
+    simplemessager_client:
+        container_name: simplemessager_client
+        build:
+            context: ./client
+            dockerfile: Dockerfile
+        ports:
+            - "5001:5000"
+        networks:
+            - simplemessager_network
+
+    proxy:
+        image: nginx:mainline
+        container_name: proxy
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+        ports:
+            - 5002:80
+        networks:
+            - simplemessager_network

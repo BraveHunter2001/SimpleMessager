@@ -1,0 +1,12 @@
+.row {
+    display: flex; /* Включаем flex-контейнер */
+    gap: 10px; /* Отступ между колонками */
+  }
+  
+  .column {
+    flex: 1; /* Равномерное распределение ширины */
+    padding: 20px;
+    background-color: lightblue;
+    text-align: center;
+  }
+  
